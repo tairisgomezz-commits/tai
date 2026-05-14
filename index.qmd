@@ -1,0 +1,123 @@
+---
+title: "index.qmd"
+format: html
+editor: visual
+execute: 
+  echo: false
+---
+# Nombre del conjunto de datos
+
+Global_movies_dataset1950_2026 Fuente:https://www.kaggle.com/datasets/suhanigupta04/global-movies-dataset-19502026?resource=download
+
+## Descripción: 
+Películas sintéticas modeladas a partir de los conjuntos de datos que cubren calificaciones, géneros, directores, reparto, duración, país, idioma, presupuesto, ingresos, popularidad, premios y plataformas de streaming.
+
+#Cantidad de filas y columnas
+
+Filas:10\| Columnas: 2
+
+```{r}
+#| warning: false
+#| echo: false
+#| message: false
+library(tidyverse)
+library(DT)
+library(plotly)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+#| message: false
+
+#carga de datos
+datos <- read.csv("global_movies_dataset_1950_2026.csv")
+
+# carga de filas y columnas 
+dim(datos)
+# ver nombres de columnas 
+names(datos)
+```
+
+Tabla interactiva
+
+```{r}
+#| warning: false
+#| echo: false
+#| message: false
+datatable(
+  datos[, c("movie_id", "title", "release_year", "decade", "runtime_min", "genre")], 
+  options = list(pageLength = 10), 
+  caption = "tabla interactiva dataset rated movies"
+)
+
+```
+
+Gráfico 1: cantidad de contenido por decada
+
+```{r}
+#| warning: false
+#| echo: false
+#| message: false
+grafico1 <- ggplot(datos, aes(x = decade, fill = decade)) + 
+  geom_bar(fill = "red") + 
+  labs(
+    title = "cantidad de contenido por decada", 
+    x = "decada", 
+    y = "cantidad"
+  )
+
+ggplotly(grafico1)
+```
+
+Grafico 2: Distribucion de años
+
+```{r}
+#| warning: false
+#| echo: false
+#| message: false
+grafico2 <- ggplot(datos, aes(x = release_year)) +
+  geom_histogram(
+    bins = 20,
+    fill = "green",
+    color = "blue"
+  ) +
+  labs(
+    title = "Distribucion de años",
+    x = "año",
+    y ="frecuencia"
+  )
+ggplotly(grafico2)
+```
+
+Operacion con dplyr
+
+```{r}
+#| warning: false
+#| echo: false
+#| message: false
+contenido_pais <- datos %>%
+  group_by(country) %>%
+  summarize(total = n()) %>%
+  arrange(desc(total))
+```
+
+Grafico 3: Contenido por pais
+
+```{r}
+#| warning: false
+#| echo: false
+#| message: false
+grafico3 <- ggplot(contenido_pais[1:10, ],
+                     aes(x = reorder(country, total),
+                        y = total,
+                         fill = total)) +
+  geom_col() +
+  labs(
+    title = "Top 15 paises con mas contenido",
+    x = "País",
+    y = "Cantidad"
+  ) +
+  coord_flip()
+ggplotly(grafico3)
+```
